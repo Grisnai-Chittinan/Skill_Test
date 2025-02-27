@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./CSS/style.css">
+    <title>Student Management</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Information</h2>
+        <input type="text" id="first_name" placeholder="First Name">
+        <input type="text" id="last_name" placeholder="Last Name">
+        <input type="number" id="age" placeholder="Age">
+        <input type="email" id="email" placeholder="Email">
+        <button onclick="addStudent()">Add Student</button>
+
+        <h3>Search Student</h3>
+        <input type="text" id="search_name" placeholder="Enter name">
+        <button onclick="searchStudent()">Search</button>
+
+        <h3>Student List</h3>
+        <button onclick="loadStudents()">Load All Students</button>
+        <table id="student_table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/students";
+
+        function addStudent() {
+            const first_name = document.getElementById("first_name").value;
+            const last_name = document.getElementById("last_name").value;
+            const age = document.getElementById("age").value;
+            const email = document.getElementById("email").value;
+
+            fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ first_name, last_name, age, email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadStudents();
+            });
+        }
+
+        function searchStudent() {
+            const name = document.getElementById("search_name").value;
+            fetch(`${API_URL}/search?name=${name}`)
+            .then(response => response.json())
+            .then(data => displayStudents(data));
+        }
+
+        function loadStudents() {
+            fetch(API_URL)
+            .then(response => response.json())
+            .then(data => displayStudents(data));
+        }
+
+        function displayStudents(students) {
+            const tableBody = document.querySelector("#student_table tbody");
+            tableBody.innerHTML = "";
+            students.forEach(student => {
+                const row = `<tr>
+                    <td>${student.id}</td>
+                    <td>${student.first_name} ${student.last_name}</td>
+                    <td>${student.age}</td>
+                    <td>${student.email}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
